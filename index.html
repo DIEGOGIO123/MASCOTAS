@@ -120,13 +120,10 @@
     <h1>🐾 Reporte de Mascotas Perdidas</h1>
     <p class="description">Selecciona una ubicación y realiza tu búsqueda.</p>
 
-    <!-- Botón lupa -->
     <button id="search-toggle">🔍</button>
 
-    <!-- Panel de búsqueda -->
     <div id="search-panel">
       <h3 style="margin-top:0;">Buscar Mascota</h3>
-
       <label>Tipo de mascota:</label>
       <select id="tipo">
         <option value="perro">Perro</option>
@@ -144,7 +141,6 @@
       <div id="form-perro">
         <label>Color(es):</label>
         <input type="text" id="color" placeholder="Ej. blanco, café">
-
         <label>Tamaño:</label>
         <select id="tamano">
           <option value="">--Selecciona--</option>
@@ -152,13 +148,10 @@
           <option>Mediano</option>
           <option>Grande</option>
         </select>
-
         <label>Raza:</label>
         <input type="text" id="raza" placeholder="Ej. Chihuahua">
-
         <label>¿Característica especial?</label>
         <input type="text" id="caracteristica" placeholder="Ej. Cojea de la pata trasera">
-
         <label>Subir foto:</label>
         <input type="file" id="foto" accept="image/*">
       </div>
@@ -170,20 +163,16 @@
           <option>Corto</option>
           <option>Largo</option>
         </select>
-
         <label>Color de ojos:</label>
         <input type="text" id="ojos" placeholder="Ej. verde, azul">
-
         <label>Raza:</label>
         <input type="text" id="razaGato" placeholder="Ej. Persa, Siamés">
-
         <label>¿Tiene collar?</label>
         <select id="collar">
           <option value="">--Selecciona--</option>
           <option>Sí</option>
           <option>No</option>
         </select>
-
         <label>Subir foto:</label>
         <input type="file" id="fotoGato" accept="image/*">
       </div>
@@ -196,19 +185,17 @@
   </div>
 
   <script>
-    // Inicializar el mapa
-    var map = L.map('map').setView([19.49, -99.12], 13);
+    const map = L.map('map').setView([19.49, -99.12], 13);
     L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
       attribution: '© OpenStreetMap contributors'
     }).addTo(map);
 
-    var locationsInfo = {
+    const locationsInfo = {
       "Gustavo A. Madero": [19.5020, -99.1118],
       "Azcapotzalco": [19.4753, -99.191],
       "Ecatepec": [19.5016, -99.0420]
     };
 
-    // Crear íconos personalizados en el mapa
     for (const location in locationsInfo) {
       const coords = locationsInfo[location];
       L.marker(coords, {
@@ -216,25 +203,20 @@
           className: 'custom-marker',
           html: '<i style="color: #e67e22; font-size: 2em;">🐶🐱</i>'
         })
-      })
-      .addTo(map)
-      .bindPopup(`Reporte de mascotas perdidas en ${location}`);
+      }).addTo(map).bindPopup(`Reporte de mascotas perdidas en ${location}`);
     }
 
-    // Mostrar/ocultar el formulario
-    document.getElementById('search-toggle').addEventListener('click', function() {
-      var panel = document.getElementById('search-panel');
-      panel.style.display = (panel.style.display === 'none') ? 'block' : 'none';
+    document.getElementById('search-toggle').addEventListener('click', function () {
+      const panel = document.getElementById('search-panel');
+      panel.style.display = panel.style.display === 'none' ? 'block' : 'none';
     });
 
-    // Mostrar formulario de Perro o Gato
-    document.getElementById('tipo').addEventListener('change', function() {
+    document.getElementById('tipo').addEventListener('change', function () {
       const tipo = this.value;
-      document.getElementById('form-perro').style.display = (tipo === 'perro') ? 'block' : 'none';
-      document.getElementById('form-gato').style.display = (tipo === 'gato') ? 'block' : 'none';
+      document.getElementById('form-perro').style.display = tipo === 'perro' ? 'block' : 'none';
+      document.getElementById('form-gato').style.display = tipo === 'gato' ? 'block' : 'none';
     });
 
-    // Función para generar fecha aleatoria
     function fechaAleatoria() {
       const inicio = new Date('2025-01-01');
       const fin = new Date('2025-04-27');
@@ -243,12 +225,40 @@
       return randomDate.toISOString().split('T')[0];
     }
 
-    // Buscar mascota
-    document.getElementById('buscar-mascota').addEventListener('click', function() {
+    const coordenadasLugares = {
+      "Parque Tezozómoc": [19.485, -99.190],
+      "UAM Azcapotzalco": [19.506, -99.185],
+      "Town Center El Rosario": [19.497, -99.203],
+      "Metro El Rosario": [19.500, -99.210],
+      "Parque Nacional El Tepeyac": [19.490, -99.110],
+      "Basílica de Guadalupe": [19.484, -99.117],
+      "Metro Indios Verdes": [19.504, -99.136],
+      "Deportivo Carmen Serdán": [19.517, -99.122],
+      "Vía Morelos": [19.531, -99.048],
+      "Centro Las Américas": [19.541, -99.030],
+      "Plaza Aragón": [19.520, -99.036],
+      "Ciudad Azteca": [19.529, -99.042]
+    };
+
+    const iconoMascota = L.icon({
+      iconUrl: 'https://cdn-icons-png.flaticon.com/512/684/684908.png',
+      iconSize: [32, 32],
+      iconAnchor: [16, 32],
+      popupAnchor: [0, -32]
+    });
+
+    let marcadoresResultados = [];
+    function limpiarMarcadoresResultados() {
+      marcadoresResultados.forEach(marker => map.removeLayer(marker));
+      marcadoresResultados = [];
+    }
+
+    document.getElementById('buscar-mascota').addEventListener('click', function () {
       const tipo = document.getElementById('tipo').value;
       const alcaldia = document.getElementById('alcaldia').value;
       const container = document.getElementById('report-container');
       container.innerHTML = '';
+      limpiarMarcadoresResultados();
 
       const lugares = {
         "Azcapotzalco": ["Parque Tezozómoc", "UAM Azcapotzalco", "Town Center El Rosario", "Metro El Rosario"],
@@ -256,13 +266,14 @@
         "Ecatepec": ["Vía Morelos", "Centro Las Américas", "Plaza Aragón", "Ciudad Azteca"]
       };
 
-      const numResultados = Math.floor(Math.random() * 2) + 2; // 2 o 3 resultados
+      const numResultados = Math.floor(Math.random() * 2) + 2;
 
       for (let i = 0; i < numResultados; i++) {
         const fecha = fechaAleatoria();
         const lugar = lugares[alcaldia][Math.floor(Math.random() * lugares[alcaldia].length)];
-        let resultado = '';
+        const coords = coordenadasLugares[lugar];
 
+        let resultado = '';
         if (tipo === 'perro') {
           const color = document.getElementById('color').value;
           const tamano = document.getElementById('tamano').value;
@@ -314,6 +325,17 @@
         }
 
         container.innerHTML += resultado;
+
+        // Agregar marcador en el mapa
+        if (coords) {
+          const marker = L.marker(coords, { icon: iconoMascota }).addTo(map);
+          marker.bindPopup(`<strong>${tipo === 'perro' ? '🐶 Perro' : '🐱 Gato'}</strong><br>${lugar}<br>Fecha: ${fecha}`);
+          marcadoresResultados.push(marker);
+        }
+      }
+
+      if (marcadoresResultados.length > 0) {
+        map.setView(marcadoresResultados[0].getLatLng(), 14);
       }
 
       document.getElementById('search-panel').style.display = 'none';
