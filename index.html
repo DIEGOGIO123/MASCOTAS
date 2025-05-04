@@ -3,342 +3,477 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Reporte de Mascotas Perdidas</title>
+  <title>PetFinder CDMX</title>
   <link rel="stylesheet" href="https://unpkg.com/leaflet@1.7.1/dist/leaflet.css" />
-  <script src="https://unpkg.com/leaflet@1.7.1/dist/leaflet.js"></script>
   <style>
     body {
-      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+      font-family: 'Nunito', sans-serif;
       margin: 0;
       padding: 0;
-      background-color: #c5fcd4;
-      color: #444;
+      background-color: #f7faff;
+      color: #333;
+      line-height: 4;
+      display: flex;
+      flex-direction: column;
+      min-height: 100vh;
     }
-    .container {
-      max-width: 95%;
-      margin: 20px auto;
-      background-color: #b5ccec;
-      padding: 20px;
-      border-radius: 12px;
-      box-shadow: 0 4px 12px rgba(0,0,0,0.08);
-      position: relative;
-    }
-    h1 {
-      color: #e67e22;
+    .top-bar {
+      background-color: #b4db34;
+      color: white;
+      padding: 15px 20px;
       text-align: center;
-      margin-bottom: 20px;
+      box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+    }
+    .top-bar h1 {
+      margin: 0;
       font-size: 2em;
     }
-    p.description {
+    .container {
+      max-width: 90%;
+      margin: 30px auto;
+      background-color: #fff;
+      padding: 30px;
+      border-radius: 12px;
+      box-shadow: 0 8px 20px rgba(0, 0, 0, 0.08);
+      position: relative;
+      flex-grow: 1;
+    }
+    .section-title {
+      color: #2c3e50;
       text-align: center;
       margin-bottom: 25px;
+      font-size: 2.5em;
+    }
+    .description {
+      text-align: center;
+      font-size: 1.15em;
       color: #555;
+      margin-bottom: 30px;
+    }
+    .ribbon-nav {
+      display: flex;
+      justify-content: center;
+      background-color: #ecf0f1;
+      padding: 10px 0;
+      border-radius: 8px;
+      margin-bottom: 20px;
+      box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05);
+    }
+    .social-buttons {
+      display: flex;
+      justify-content: center;
+      gap: 15px;
+      flex-wrap: wrap;
+      margin: 20px 0;
+    }
+  
+    .social-buttons a {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      padding: 12px 20px;
+      border-radius: 8px;
+      color: white;
+      text-decoration: none;
+      font-weight: 600;
+      transition: 0.3s ease;
+      box-shadow: 0 2px 6px rgba(0, 0, 0, 0.1);
+    }
+  
+    .whatsapp-btn {
+      background-color: #25d366;
+    }
+    .whatsapp-btn:hover {
+      background-color: #1c9947;
+    }
+  
+    .face-btn {
+      background-color: #254bd3;
+    }
+    .face-btn:hover {
+      background-color: #2d4373;
+    }
+  
+    .insta-btn {
+      background-color: #e1306c;
+    }
+    .insta-btn:hover {
+      background-color: #c13584;
+    }
+  
+    .x-btn {
+      background-color: #1da1f2;
+    }
+    .x-btn:hover {
+      background-color: #0d8ddb;
+    }
+    .tab-btn {
+      background: none;
+      border: none;
+      padding: 12px 20px;
+      margin: 0 10px;
+      font-size: 1rem;
+      color: #34495e;
+      cursor: pointer;
+      transition: color 0.3s ease;
+      border-radius: 6px;
+    }
+    .tab-btn:hover,
+    .tab-btn.active {
+      color: #5f83d7;
+      font-weight: 600;
+    }
+    .ribbon-content {
+      display: none;
+      padding: 25px;
+      background-color: #f9f9f9;
+      border: 1px solid #eee;
+      border-radius: 8px;
+      margin-top: 15px;
+    }
+    .ribbon-content.active {
+      display: block;
     }
     #map {
-      height: 400px;
-      border-radius: 8px;
-      box-shadow: 0 2px 8px rgba(0,0,0,0.06);
-      margin-bottom: 20px;
-      width: 100%;
+      height: 450px;
+      margin-top: 30px;
+      border-radius: 12px;
+      box-shadow: 0 5px 15px rgba(0, 0, 0, 0.07);
     }
     #search-toggle {
       position: absolute;
       top: 20px;
       right: 20px;
-      background: white;
+      background: #2ecca277;
+      color: white;
       border: none;
       border-radius: 50%;
-      width: 50px;
-      height: 50px;
-      box-shadow: 0 2px 6px rgba(0,0,0,0.3);
-      cursor: pointer;
+      width: 60px;
+      height: 60px;
       font-size: 24px;
+      cursor: pointer;
+      box-shadow: 0 4px 8px rgba(0, 0, 0, 0.15);
+      transition: background 0.3s ease;
       z-index: 1001;
     }
     #search-toggle:hover {
-      background-color: #e0e0e0;
-      transform: scale(1.1);
+      background-color: #27ae60;
     }
     #search-panel {
       display: none;
       position: absolute;
-      top: 80px;
+      top: 90px;
       right: 20px;
       background: #fff;
-      padding: 20px;
+      padding: 25px;
       border-radius: 12px;
-      box-shadow: 0 4px 10px rgba(0,0,0,0.2);
-      width: 300px;
+      box-shadow: 0 6px 18px rgba(0, 0, 0, 0.12);
+      width: 350px;
       z-index: 1000;
     }
-    #search-panel label {
-      margin-top: 10px;
-      display: block;
-      font-weight: bold;
+    #search-panel h3 {
+      margin-top: 0;
+      font-size: 1.5em;
+      color: #3498db;
+      margin-bottom: 20px;
+      text-align: center;
     }
-    #search-panel input, #search-panel select {
-      width: 100%;
-      padding: 6px;
-      margin-top: 5px;
-      margin-bottom: 10px;
-      border: 1px solid #ccc;
-      border-radius: 6px;
+    #search-panel label {
+      display: block;
+      margin-top: 12px;
+      font-weight: 600;
+      color: #444;
+    }
+    #search-panel input,
+    #search-panel select {
+      width: calc(100% - 16px);
+      padding: 10px;
+      margin-top: 6px;
+      border-radius: 8px;
+      border: 1px solid #ddd;
+      margin-bottom: 15px;
+      font-size: 1em;
     }
     #buscar-mascota {
       background-color: #3498db;
       color: white;
       border: none;
-      padding: 8px 15px;
+      padding: 12px 20px;
+      font-size: 1.1em;
       border-radius: 8px;
-      cursor: pointer;
       width: 100%;
+      cursor: pointer;
+      transition: background 0.3s ease;
+      box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
     }
     #buscar-mascota:hover {
       background-color: #2980b9;
     }
     .card {
-      background: linear-gradient(135deg, #e0f7fa, #b2ebf2);
+      background: #ffffff;
       padding: 20px;
       border-radius: 12px;
+      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.06);
       margin-top: 20px;
-      box-shadow: 0 4px 10px rgba(0,0,0,0.15);
+      border: 1px solid #eee;
     }
     .card img {
       max-width: 100%;
       border-radius: 8px;
-      margin-top: 10px;
+      margin-top: 15px;
     }
-    .custom-marker {
-      background: none !important;
-      border: none !important;
+    .card h2 {
+      color: #3498db;
+      margin-top: 0;
+      margin-bottom: 10px;
     }
-  </style>
+    .card p {
+      margin-bottom: 8px;
+      color: #555;
+    }
+    .card strong {
+      font-weight: bold;
+      color: #333;
+    }
+    .site-footer {
+      background-color: #b4db34;
+      padding: 20px;
+      text-align: center;
+      color: #777;
+      margin-top: 30px;
+      border-top: 1px solid #ddd;
+    }
+    .site-footer a {
+      color: #ffffff;
+    }
+    @import url('https://fonts.googleapis.com/css2?family=Nunito:wght@400;600;700&display=swap');
+    </style>
+    
 </head>
-
 <body>
-  <div class="container">
-    <h1>🐾 Reporte de Mascotas Perdidas</h1>
-    <p class="description">Selecciona una ubicación y realiza tu búsqueda.</p>
+  <div class="top-bar">
+    <h1>🐾 PetFinder</h1>
+  </div>
+    <div class="container">
+    <section id="about-us">
+      <h2 class="section-title">¿Qué Hacemos?</h2>
+      <p class="description">
+        Somos una plataforma dedicada a ayudar a las mascotas perdidas a reunirse con sus familias en la Ciudad de México.
+        A través de reportes geolocalizados y una comunidad activa, facilitamos la búsqueda y el reencuentro.
+      </p>
+      <div class="ribbon-nav">
+        <button class="tab-btn active" data-tab="mision">Misión</button>
+        <button class="tab-btn" data-tab="vision">Visión</button>
+        <button class="tab-btn" data-tab="servicios">Servicios</button>
+        <button class="tab-btn" data-tab="casos">Casos De Exito</button>
+      </div>
+      <div id="mision" class="ribbon-content active">
+        <p>Nuestra <strong>misión</strong> es ser el puente que conecta a las mascotas perdidas con sus dueños, utilizando la tecnología y la colaboración comunitaria para lograr reencuentros felices.</p>
+      </div>
+      <div id="vision" class="ribbon-content">
+        <p>Nuestra <strong>visión</strong> es convertirnos en la plataforma líder y de confianza en la CDMX para la recuperación de mascotas extraviadas, fomentando una comunidad solidaria y consciente del bienestar animal.</p>
+      </div>
+      <div id="servicios" class="ribbon-content">
+        <h3>Nuestros Servicios Incluyen:</h3>
+        <ul>
+          <li><strong>Reporte de Mascotas Perdidas:</strong> Publica detalles y ubicación de tu mascota perdida.</li>
+          <li><strong>Mapa Interactivo:</strong> Visualiza reportes cercanos en tiempo real.</li>
+          <li><strong>Búsqueda Avanzada:</strong> Filtra por tipo, raza, ubicación y más.</li>
+          <li><strong>Alertas Comunitarias:</strong> Notificaciones a usuarios cercanos a un reporte.</li>
+          <li><strong>Contacto Directo:</strong> Facilidad para contactar a quien reportó o encontró una mascota.</li>
+        </ul>
+      </div>
+      <div id="casos" class="ribbon-content">
+        <ul>
+          <li>
+            <img src="max.jpeg" alt="Foto de Max" style="width: 100px; height: 100px; object-fit: cover; border-radius: 8px; margin-right: 10px; vertical-align: middle;">
+            <strong>Max (perro):</strong> Se extravió en la colonia Del Valle, CDMX. Gracias a la publicación con su foto y ubicación en redes sociales, un vecino lo reconoció y lo cuidó hasta que fue recogido por sus dueños.
+          </li>
+          <li>
+            <img src="luna.jpeg" alt="Foto de Luna" style="width: 100px; height: 90px; object-fit: cover; border-radius: 8px; margin-right: 10px; vertical-align: middle;">
+            <strong>Luna (gata):</strong> Escapó por una ventana en la noche en Guadalajara. Un usuario vio el reporte en línea y la encontró escondida en su cochera al día siguiente.
+          </li>
+          <li>
+            <img src="toby.jpeg" alt="Foto de Toby" style="width: 100px; height: 90px; object-fit: cover; border-radius: 8px; margin-right: 10px; vertical-align: middle;">
+            <strong>Toby (perro):</strong> Fue encontrado por una familia que escaneó su placa con código QR. Contactaron a los dueños rápidamente y lo devolvieron esa misma tarde.
+          </li>
+          <li>
+            <img src="misha.jpeg" alt="Foto de Misha" style="width: 100px; height: 69px; object-fit: cover; border-radius: 8px; margin-right: 10px; vertical-align: middle;">
+            <strong>Misha (gata):</strong> Desapareció tras una mudanza. Fue localizada gracias a su chip de identificación y un refugio que escaneó sus datos tras ser llevada.
+          </li>
+          <li>
+            <img src="rocky.jpeg" alt="Foto de Rocky" style="width: 100px; height: 90px; object-fit: cover; border-radius: 8px; margin-right: 10px; vertical-align: middle;">
+            <strong>Rocky (perro):</strong> Fue reportado perdido con ubicación en mapa. Una persona que paseaba a su perro en la zona vio la alerta y reconoció a Rocky, logrando reunirlo con su familia.
+          </li>
+        </ul>
+        
+    </section>
 
-    <button id="search-toggle">🔍</button>
+    <section id="search-map">
+      <h2 class="section-title">Encuentra Mascotas Cerca de Ti</h2>
+      <p class="description">Utiliza el mapa interactivo y el panel de búsqueda para encontrar mascotas perdidas en tu alcaldía.</p>
 
-    <div id="search-panel">
-      <h3 style="margin-top:0;">Buscar Mascota</h3>
-      <label>Tipo de mascota:</label>
-      <select id="tipo">
-        <option value="perro">Perro</option>
-        <option value="gato">Gato</option>
-      </select>
+      <button id="search-toggle">🔍</button>
 
-      <label>Alcaldía:</label>
-      <select id="alcaldia">
-        <option value="">--Selecciona--</option>
-        <option>Gustavo A. Madero</option>
-        <option>Azcapotzalco</option>
-        <option>Ecatepec</option>
-      </select>
-
-      <div id="form-perro">
-        <label>Color(es):</label>
-        <input type="text" id="color" placeholder="Ej. blanco, café">
-        <label>Tamaño:</label>
-        <select id="tamano">
-          <option value="">--Selecciona--</option>
-          <option>Pequeño</option>
-          <option>Mediano</option>
-          <option>Grande</option>
+      <div id="search-panel">
+        <h3>Filtrar Búsqueda</h3>
+        <label for="tipo">Tipo de mascota:</label>
+        <select id="tipo">
+          <option value="perro">Perro</option>
+          <option value="gato">Gato</option>
         </select>
-        <label>Raza:</label>
-        <input type="text" id="raza" placeholder="Ej. Chihuahua">
-        <label>¿Característica especial?</label>
-        <input type="text" id="caracteristica" placeholder="Ej. Cojea de la pata trasera">
-        <label>Subir foto:</label>
-        <input type="file" id="foto" accept="image/*">
+
+        <label for="alcaldia">Alcaldía:</label>
+        <select id="alcaldia">
+          <option value="">--Selecciona--</option>
+          <option>Gustavo A. Madero</option>
+          <option>Azcapotzalco</option>
+          <option>Ecatepec</option>
+        </select>
+
+        <div id="form-perro">
+          <label for="color">Color(es):</label>
+          <input type="text" id="color" placeholder="Ej. blanco, café">
+          <label for="tamano">Tamaño:</label>
+          <select id="tamano">
+            <option value="">--Selecciona--</option>
+            <option>Pequeño</option>
+            <option>Mediano</option>
+            <option>Grande</option>
+          </select>
+          <label for="raza">Raza:</label>
+          <input type="text" id="raza" placeholder="Ej. Chihuahua">
+        </div>
+
+        <div id="form-gato" style="display:none;">
+          <label for="pelaje">Pelaje:</label>
+          <select id="pelaje">
+            <option value="">--Selecciona--</option>
+            <option>Corto</option>
+            <option>Largo</option>
+          </select>
+          <label for="ojos">Color de ojos:</label>
+          <input type="text" id="ojos" placeholder="Ej. verde, azul">
+        </div>
+
+        <button id="buscar-mascota">Buscar</button>
       </div>
 
-      <div id="form-gato" style="display:none;">
-        <label>Pelaje:</label>
-        <select id="pelaje">
-          <option value="">--Selecciona--</option>
-          <option>Corto</option>
-          <option>Largo</option>
-        </select>
-        <label>Color de ojos:</label>
-        <input type="text" id="ojos" placeholder="Ej. verde, azul">
-        <label>Raza:</label>
-        <input type="text" id="razaGato" placeholder="Ej. Persa, Siamés">
-        <label>¿Tiene collar?</label>
-        <select id="collar">
-          <option value="">--Selecciona--</option>
-          <option>Sí</option>
-          <option>No</option>
-        </select>
-        <label>Subir foto:</label>
-        <input type="file" id="fotoGato" accept="image/*">
-      </div>
-
-      <button id="buscar-mascota">Buscar</button>
-    </div>
-
-    <div id="map"></div>
-    <div id="report-container"></div>
+      <div id="map"></div>
+      <div id="report-container"></div>
+    </section>
   </div>
 
+  <footer class="site-footer">
+    <div class="social-buttons">
+  <h3>¡Síguenos!</h3>
+  <a class="face-btn" href="https://facebook.com/tuPagina" target="_blank">Facebook</a>
+  <a class="insta-btn" href="https://instagram.com/tuPagina" target="_blank">Instagram</a>
+  <a class="x-btn" href="https://x.com/tuPagina" target="_blank">X (Twitter)</a>
+</div>
+    <div style="margin-top:15px;">
+      <h3>Contactanos</h3>
+      <p>Email: <a href="mailto:contacto@petfinder.mx">contacto@petfinder.mx</a></p>
+      <p>Teléfono: 55-1234-5678</p>
+      <div class="social-buttons">
+      <a class="whatsapp-btn" href="https://wa.me/5215512345678" target="_blank">WhatsApp</a>
+    </div>
+  </div>
+    <p style="margin-top:20px;">&copy; 2025 PetFinder CDMX. Todos los derechos reservados.</p>
+  </footer>
+
+  <script src="https://unpkg.com/leaflet@1.7.1/dist/leaflet.js"></script>
   <script>
-    const map = L.map('map').setView([19.49, -99.12], 13);
+    // --- Datos ficticios ---
+    const petData = [
+      { id:1, tipo:'perro', alcaldia:'Gustavo A. Madero', coords:[19.4845,-99.1139], color:'blanco', tamano:'Mediano', raza:'Labrador', desc:'Cojea leve' },
+      { id:2, tipo:'perro', alcaldia:'Azcapotzalco', coords:[19.4820,-99.1919], color:'negro', tamano:'Grande', raza:'Pastor Alemán', desc:'Collar rojo' },
+      { id:3, tipo:'perro', alcaldia:'Ecatepec', coords:[19.6016,-99.0508], color:'café', tamano:'Pequeño', raza:'Chihuahua', desc:'Muy nervioso' },
+      { id:4, tipo:'gato', alcaldia:'Gustavo A. Madero', coords:[19.4900,-99.1200], pelaje:'Largo', ojos:'Verdes', desc:'Chip implantado' },
+      { id:5, tipo:'gato', alcaldia:'Azcapotzalco', coords:[19.4800,-99.2000], pelaje:'Corto', ojos:'Azules', desc:'Sordo' },
+      { id:6, tipo:'gato', alcaldia:'Ecatepec', coords:[19.6100,-99.0400], pelaje:'Largo', ojos:'Ambar', desc:'Juguetón' }
+    ];
+
+    // Marcadores actuales
+    let markers = [];
+
+    // Inicializar mapa
+    const map = L.map('map').setView([19.4326, -99.1332], 11);
     L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
-      attribution: '© OpenStreetMap contributors'
+      attribution: '&copy; OpenStreetMap contributors'
     }).addTo(map);
 
-    const locationsInfo = {
-      "Gustavo A. Madero": [19.5020, -99.1118],
-      "Azcapotzalco": [19.4753, -99.191],
-      "Ecatepec": [19.5016, -99.0420]
-    };
+    // Funcionalidad de pestañas
+    document.querySelectorAll('.tab-btn').forEach(btn => {
+      btn.addEventListener('click', () => {
+        document.querySelectorAll('.tab-btn').forEach(b=>b.classList.remove('active'));
+        document.querySelectorAll('.ribbon-content').forEach(c=>c.classList.remove('active'));
+        btn.classList.add('active');
+        document.getElementById(btn.dataset.tab).classList.add('active');
+      });
+    });
 
-    for (const location in locationsInfo) {
-      const coords = locationsInfo[location];
-      L.marker(coords, {
-        icon: L.divIcon({
-          className: 'custom-marker',
-          html: '<i style="color: #e67e22; font-size: 2em;">🐶🐱</i>'
-        })
-      }).addTo(map).bindPopup(`Reporte de mascotas perdidas en ${location}`);
-    }
-
-    document.getElementById('search-toggle').addEventListener('click', function () {
+    // Toggle formulario y tipo de mascota
+    document.getElementById('search-toggle').addEventListener('click', () => {
       const panel = document.getElementById('search-panel');
-      panel.style.display = panel.style.display === 'none' ? 'block' : 'none';
+      panel.style.display = panel.style.display==='block' ? 'none':'block';
+    });
+    document.getElementById('tipo').addEventListener('change', e => {
+      document.getElementById('form-perro').style.display = e.target.value==='perro'?'block':'none';
+      document.getElementById('form-gato').style.display  = e.target.value==='gato'?'block':'none';
     });
 
-    document.getElementById('tipo').addEventListener('change', function () {
-      const tipo = this.value;
-      document.getElementById('form-perro').style.display = tipo === 'perro' ? 'block' : 'none';
-      document.getElementById('form-gato').style.display = tipo === 'gato' ? 'block' : 'none';
-    });
-
-    function fechaAleatoria() {
-      const inicio = new Date('2025-01-01');
-      const fin = new Date('2025-04-27');
-      const diff = fin.getTime() - inicio.getTime();
-      const randomDate = new Date(inicio.getTime() + Math.random() * diff);
-      return randomDate.toISOString().split('T')[0];
-    }
-
-    const coordenadasLugares = {
-      "Parque Tezozómoc": [19.485, -99.190],
-      "UAM Azcapotzalco": [19.506, -99.185],
-      "Town Center El Rosario": [19.497, -99.203],
-      "Metro El Rosario": [19.500, -99.210],
-      "Parque Nacional El Tepeyac": [19.490, -99.110],
-      "Basílica de Guadalupe": [19.484, -99.117],
-      "Metro Indios Verdes": [19.504, -99.136],
-      "Deportivo Carmen Serdán": [19.517, -99.122],
-      "Vía Morelos": [19.531, -99.048],
-      "Centro Las Américas": [19.541, -99.030],
-      "Plaza Aragón": [19.520, -99.036],
-      "Ciudad Azteca": [19.529, -99.042]
-    };
-
-    const iconoMascota = L.icon({
-      iconUrl: 'https://cdn-icons-png.flaticon.com/512/684/684908.png',
-      iconSize: [32, 32],
-      iconAnchor: [16, 32],
-      popupAnchor: [0, -32]
-    });
-
-    let marcadoresResultados = [];
-    function limpiarMarcadoresResultados() {
-      marcadoresResultados.forEach(marker => map.removeLayer(marker));
-      marcadoresResultados = [];
-    }
-
-    document.getElementById('buscar-mascota').addEventListener('click', function () {
-      const tipo = document.getElementById('tipo').value;
-      const alcaldia = document.getElementById('alcaldia').value;
+    // Función Buscar
+    document.getElementById('buscar-mascota').addEventListener('click', () => {
+      // Limpiar marcadores y resultados
+      markers.forEach(m => map.removeLayer(m));
+      markers = [];
       const container = document.getElementById('report-container');
       container.innerHTML = '';
-      limpiarMarcadoresResultados();
 
-      const lugares = {
-        "Azcapotzalco": ["Parque Tezozómoc", "UAM Azcapotzalco", "Town Center El Rosario", "Metro El Rosario"],
-        "Gustavo A. Madero": ["Parque Nacional El Tepeyac", "Basílica de Guadalupe", "Metro Indios Verdes", "Deportivo Carmen Serdán"],
-        "Ecatepec": ["Vía Morelos", "Centro Las Américas", "Plaza Aragón", "Ciudad Azteca"]
-      };
+      // Leer filtros
+      const tipo = document.getElementById('tipo').value;
+      const alcaldia = document.getElementById('alcaldia').value;
+      // Filtrar datos
+      const results = petData.filter(p => p.tipo===tipo && p.alcaldia===alcaldia);
+      if (results.length===0) {
+        alert('No se encontraron mascotas con esos filtros.');
+        return;
+      }
 
-      const numResultados = Math.floor(Math.random() * 2) + 2;
+      // Mostrar resultados
+      results.forEach(p => {
+        // marcador
+        const m = L.marker(p.coords).addTo(map)
+          .bindPopup(`<strong>${p.tipo.toUpperCase()}</strong><br>${p.alcaldia}`);
+        markers.push(m);
 
-      for (let i = 0; i < numResultados; i++) {
-        const fecha = fechaAleatoria();
-        const lugar = lugares[alcaldia][Math.floor(Math.random() * lugares[alcaldia].length)];
-        const coords = coordenadasLugares[lugar];
-
-        let resultado = '';
-        if (tipo === 'perro') {
-          const color = document.getElementById('color').value;
-          const tamano = document.getElementById('tamano').value;
-          const raza = document.getElementById('raza').value;
-          const caracteristica = document.getElementById('caracteristica').value;
-          const foto = document.getElementById('foto').files[0];
-          let fotoHTML = '';
-          if (foto) {
-            const imgURL = URL.createObjectURL(foto);
-            fotoHTML = `<img src="${imgURL}" alt="Foto perro">`;
-          }
-          resultado = `
-            <div class="card">
-              <h2>🐶 Perro encontrado</h2>
-              <p><strong>Fecha:</strong> ${fecha}</p>
-              <p><strong>Alcaldía:</strong> ${alcaldia}</p>
-              <p><strong>Color:</strong> ${color}</p>
-              <p><strong>Tamaño:</strong> ${tamano}</p>
-              <p><strong>Raza:</strong> ${raza}</p>
-              ${caracteristica ? `<p><strong>Característica:</strong> ${caracteristica}</p>` : ''}
-              <p><em>Última vez visto cerca de <strong>${lugar}</strong></em></p>
-              ${fotoHTML}
-            </div>
-          `;
+        // tarjeta
+        const card = document.createElement('div');
+        card.className = 'card';
+        let html = `<h2>${p.tipo.charAt(0).toUpperCase()+p.tipo.slice(1)} en ${p.alcaldia}</h2>`;
+        if (p.tipo==='perro') {
+          html += `<h2>🐶 Perro encontrado</h2>
+          <p><strong>Color:</strong> ${p.color}</p>
+                   <p><strong>Tamaño:</strong> ${p.tamano}</p>
+                   <p><strong>Raza:</strong> ${p.raza}</p>`;
         } else {
-          const pelaje = document.getElementById('pelaje').value;
-          const ojos = document.getElementById('ojos').value;
-          const razaGato = document.getElementById('razaGato').value;
-          const collar = document.getElementById('collar').value;
-          const fotoGato = document.getElementById('fotoGato').files[0];
-          let fotoHTML = '';
-          if (fotoGato) {
-            const imgURL = URL.createObjectURL(fotoGato);
-            fotoHTML = `<img src="${imgURL}" alt="Foto gato">`;
-          }
-          resultado = `
-            <div class="card">
-              <h2>🐱 Gato encontrado</h2>
-              <p><strong>Fecha:</strong> ${fecha}</p>
-              <p><strong>Alcaldía:</strong> ${alcaldia}</p>
-              <p><strong>Pelaje:</strong> ${pelaje}</p>
-              <p><strong>Color de ojos:</strong> ${ojos}</p>
-              <p><strong>Raza:</strong> ${razaGato}</p>
-              <p><strong>¿Tiene collar?</strong> ${collar}</p>
-              <p><em>Última vez visto cerca de <strong>${lugar}</strong></em></p>
-              ${fotoHTML}
-            </div>
-          `;
+          html += `<p><strong>Pelaje:</strong> ${p.pelaje}</p>
+                   <p><strong>Ojos:</strong> ${p.ojos}</p>`;
         }
-
-        container.innerHTML += resultado;
-
-        // Agregar marcador en el mapa
-        if (coords) {
-          const marker = L.marker(coords, { icon: iconoMascota }).addTo(map);
-          marker.bindPopup(`<strong>${tipo === 'perro' ? '🐶 Perro' : '🐱 Gato'}</strong><br>${lugar}<br>Fecha: ${fecha}`);
-          marcadoresResultados.push(marker);
+        html += `<p><strong>Descripción:</strong> ${p.desc}</p>`;
+        if (g.tipo==='gato') {
+          html += `<h2>🐱 Gato encontrado</h2>
+          <p><strong>Alcaldia:</strong> ${p.alcaldia}</p>
+                   <p><strong>Pelaje:</strong> ${p.pelaje}</p>
+                   `;
+        } else {
+          html += `<p><strong>Ojos:</strong> ${p.ojos}</p>`;
         }
-      }
-
-      if (marcadoresResultados.length > 0) {
-        map.setView(marcadoresResultados[0].getLatLng(), 14);
-      }
-
-      document.getElementById('search-panel').style.display = 'none';
+        html += `<p><strong>Descripción:</strong> ${p.desc}</p>`;
+        card.innerHTML = html;
+        container.appendChild(card);
+      });
     });
   </script>
 </body>
